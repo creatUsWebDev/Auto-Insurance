@@ -86,18 +86,18 @@ export default function Lander() {
         }
     }, [step, visibleMessages, messagesMemo]);
 
-    function handleUserAnswer(ans: string) {
-        if (step === 1) {
-            setAnswers({ ...answers, 1: ans });
-            setStep(2);
-        } else if (step === 2) {
-            setAnswers({ ...answers, 2: ans });
-            setStep(3);
-        } else if (step === 3) {
-            setAnswers({ ...answers, 3: ans });
-            setStep(4);
-        }
-    }
+    // function handleUserAnswer(ans: string) {
+    //     if (step === 1) {
+    //         setAnswers({ ...answers, 1: ans });
+    //         setStep(2);
+    //     } else if (step === 2) {
+    //         setAnswers({ ...answers, 2: ans });
+    //         setStep(3);
+    //     } else if (step === 3) {
+    //         setAnswers({ ...answers, 3: ans });
+    //         setStep(4);
+    //     }
+    // }
 
     const formatted = useMemo(() => {
         const mm = String(Math.floor(countdown / 60)).padStart(2, "0");
@@ -118,13 +118,44 @@ export default function Lander() {
         : true;
 
     // Auto-scroll to the last message whenever visibleMessages or showTyping changes
-    useEffect(() => {
-        if (lastMessageRef.current) {
-            lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+    // useEffect(() => {
+    //     if (lastMessageRef.current) {
+    //         lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+    //     }
+    // }, [visibleMessages, showTyping]);
+
+    const hasInteracted = useRef(false); // track if user answered / moved beyond initial messages
+
+    // Call this whenever the user sends an answer
+    function handleUserAnswer(ans: string) {
+        if (!hasInteracted.current) hasInteracted.current = true;
+
+        if (step === 1) {
+            setAnswers({ ...answers, 1: ans });
+            setStep(2);
+        } else if (step === 2) {
+            setAnswers({ ...answers, 2: ans });
+            setStep(3);
+        } else if (step === 3) {
+            setAnswers({ ...answers, 3: ans });
+            setStep(4);
         }
-    }, [visibleMessages, showTyping]);
+    }
 
+    // Smart autoscroll only after user interaction
+    useEffect(() => {
+        if (step < 3) return; // skip autoscroll for step 1 & 2
 
+        const container = chatContainerRef.current;
+        if (!container) return;
+
+        const isNearBottom =
+            container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+
+        if (isNearBottom) {
+            lastMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, [visibleMessages, step]);
 
     return (
         <div className="flex flex-col items-center bg-white">
@@ -136,7 +167,6 @@ export default function Lander() {
                     See If You Qualify For Low Cost Auto Insurance Before The Deadline.
                 </h1>
             </div>
-
             <div ref={chatContainerRef} className="flex flex-col mt-6 w-full max-w-md space-y-3 min-h-[80vh] px-4">
                 <p className="text-center flex justify-center items-center"><Image src="/dot.gif" alt="Emily is online" width={40} height={40} /> Emily is online</p>
 
