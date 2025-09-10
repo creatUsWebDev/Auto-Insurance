@@ -127,8 +127,8 @@ export default function Lander() {
 
 
     return (
-        <div className="flex flex-col items-center bg-white ">
-            <div className="text-center mt-4 text-base md:text-lg">
+        <div className="flex flex-col items-center bg-white">
+            <div className="text-center mt-4 text-base md:text-lg px-4">
                 <p className="text-red-600 font-bold">
                     Attention: Registration closes on {todayDate} at midnight.
                 </p>
@@ -137,7 +137,7 @@ export default function Lander() {
                 </h1>
             </div>
 
-            <div ref={chatContainerRef} className="flex flex-col mt-6 w-full max-w-md space-y-3 min-h-[40vh]">
+            <div ref={chatContainerRef} className="flex flex-col mt-6 w-full max-w-md space-y-3 min-h-[80vh] px-4">
                 <p className="text-center flex justify-center items-center"><Image src="/dot.gif" alt="Emily is online" width={40} height={40} /> Emily is online</p>
 
                 <AnimatePresence>
