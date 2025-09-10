@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -22,6 +23,9 @@ export default function Lander() {
 
     const [showPrivacy, setShowPrivacy] = useState(false);
     const [showTerms, setShowTerms] = useState(false);
+
+    const chatContainerRef = useRef<HTMLDivElement>(null);
+    const lastMessageRef = useRef<HTMLDivElement>(null); // ref for last message
 
     const todayDate = useMemo(() => {
         const now = new Date();
@@ -49,7 +53,9 @@ export default function Lander() {
         { step: 4, from: "emily", text: "Tap the Button Below to Call Now!" },
     ];
 
-    // Countdown logic
+    const messagesMemo = useMemo(() => messages, [messages]);
+
+    // Countdown timer
     useEffect(() => {
         if (step === 4) {
             const timer = setInterval(() => setCountdown((c) => Math.max(0, c - 1)), 1000);
@@ -57,14 +63,10 @@ export default function Lander() {
         }
     }, [step]);
 
-    // Wrap messages in useMemo so they don't change every render
-    const messagesMemo = useMemo(() => messages, [messages]);
-
     // Show messages one by one with typing animation
     useEffect(() => {
         const stepMessages = messagesMemo.filter((m) => m.step <= step);
-
-        const idx = visibleMessages.length; // changed from let → const
+        const idx = visibleMessages.length;
 
         if (idx >= stepMessages.length) return;
 
@@ -73,17 +75,16 @@ export default function Lander() {
 
         if (nextMessage.from === "emily") {
             setShowTyping(true);
-            const typingDelay = step === 4 ? 300 : 1000; // last step faster
+            const typingDelay = step === 4 ? 300 : 1000;
             const timeout = setTimeout(() => {
                 setVisibleMessages((prev) => [...prev, nextMessage]);
                 setShowTyping(false);
             }, typingDelay);
-
             return () => clearTimeout(timeout);
         } else {
             setVisibleMessages((prev) => [...prev, nextMessage]);
         }
-    }, [step, visibleMessages, messagesMemo]); // use messagesMemo in dependencies
+    }, [step, visibleMessages, messagesMemo]);
 
     function handleUserAnswer(ans: string) {
         if (step === 1) {
@@ -104,8 +105,6 @@ export default function Lander() {
         return `${mm}:${ss}`;
     }, [countdown]);
 
-
-    // Determine if last Emily message is shown to display buttons
     const emilyMessagesCurrentStep = messages.filter(
         (m) => m.step === step && m.from === "emily"
     );
@@ -118,9 +117,17 @@ export default function Lander() {
         )
         : true;
 
+    // Auto-scroll to the last message whenever visibleMessages or showTyping changes
+    useEffect(() => {
+        if (lastMessageRef.current) {
+            lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [visibleMessages, showTyping]);
+
+
 
     return (
-        <div className="min-h-screen flex flex-col items-center bg-white">
+        <div className="flex flex-col items-center bg-white ">
             <div className="text-center mt-4 text-base md:text-lg">
                 <p className="text-red-600 font-bold">
                     Attention: Registration closes on {todayDate} at midnight.
@@ -130,38 +137,42 @@ export default function Lander() {
                 </h1>
             </div>
 
-            <div className="flex flex-col mt-6 w-full max-w-md space-y-3 min-h-screen">
-                <p className="text-center">🟢Emily is online</p>
+            <div ref={chatContainerRef} className="flex flex-col mt-6 w-full max-w-md space-y-3 min-h-[40vh]">
+                <p className="text-center flex justify-center items-center"><Image src="/dot.gif" alt="Emily is online" width={40} height={40} /> Emily is online</p>
 
                 <AnimatePresence>
-                    {visibleMessages.map((m, idx) => (
-                        <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4 }}
-                            className={`flex items-end ${m.from === "emily" ? "justify-start" : "justify-end"}`}
-                        >
-                            {m.from === "emily" && (
-                                <div className="w-8 h-8 mr-2 rounded-full bg-gray-300 flex items-center justify-center text-sm">
-                                    🤖
-                                </div>
-                            )}
-                            <div
-                                className={`px-4 py-2 rounded-xl max-w-[70%] ${m.from === "emily"
-                                    ? "bg-gray-100 text-gray-800"
-                                    : "bg-blue-500 text-white"
-                                    }`}
+                    {visibleMessages.map((m, idx) => {
+                        const isLast = idx === visibleMessages.length - 1;
+                        return (
+                            <motion.div
+                                key={idx}
+                                ref={isLast ? lastMessageRef : null}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4 }}
+                                className={`flex items-end ${m.from === "emily" ? "justify-start" : "justify-end"}`}
                             >
-                                {m.text}
-                            </div>
-                            {m.from === "user" && (
-                                <div className="w-8 h-8 ml-2 rounded-full bg-blue-400 flex items-center justify-center text-sm text-white">
-                                    👤
+                                {m.from === "emily" && (
+                                    <div className="w-8 h-8 mr-2 rounded-full bg-gray-300 flex items-center justify-center text-sm">
+                                        🤖
+                                    </div>
+                                )}
+                                <div
+                                    className={`px-4 py-2 rounded-xl max-w-[70%] ${m.from === "emily"
+                                        ? "bg-gray-100 text-gray-800"
+                                        : "bg-blue-500 text-white"
+                                        }`}
+                                >
+                                    {m.text}
                                 </div>
-                            )}
-                        </motion.div>
-                    ))}
+                                {m.from === "user" && (
+                                    <div className="w-8 h-8 ml-2 rounded-full bg-blue-400 flex items-center justify-center text-sm text-white">
+                                        👤
+                                    </div>
+                                )}
+                            </motion.div>
+                        );
+                    })}
                 </AnimatePresence>
 
                 {/* Typing indicator */}
