@@ -144,18 +144,19 @@ export default function Lander() {
 
     // Smart autoscroll only after user interaction
     useEffect(() => {
-        if (step < 3) return; // skip autoscroll for step 1 & 2
+        // if (step < 3) return; // skip autoscroll for step 1 & 2
 
         const container = chatContainerRef.current;
         if (!container) return;
 
         const isNearBottom =
-            container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+            container.scrollHeight - container.scrollTop - container.clientHeight < 10;
 
         if (isNearBottom) {
-            lastMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            lastMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
         }
     }, [visibleMessages, step]);
+
 
     return (
         <div className="flex flex-col items-center bg-white">
@@ -167,7 +168,7 @@ export default function Lander() {
                     See If You Qualify For Low Cost Auto Insurance Before The Deadline.
                 </h1>
             </div>
-            <div ref={chatContainerRef} className="flex flex-col mt-6 w-full max-w-md space-y-3 min-h-[80vh] px-4">
+            <div ref={chatContainerRef} className="flex flex-col mt-2 w-full max-w-md space-y-3 min-h-[85vh] px-4">
                 <p className="text-center flex justify-center items-center"><Image src="/dot.gif" alt="Emily is online" width={40} height={40} /> Emily is online</p>
 
                 <AnimatePresence>
@@ -263,7 +264,7 @@ export default function Lander() {
                             </div>
                         )}
                         {step === 4 && (
-                            <div className="mt-4 space-y-2">
+                            <div className="mt-4 space-y-2 mb-20" ref={lastMessageRef}>
                                 <div className="text-center text-lg font-semibold">
                                     Expires in: {formatted}
                                 </div>
@@ -279,7 +280,7 @@ export default function Lander() {
                 )}
             </div>
 
-            <footer className="bg-gray-100 text-gray-800 p-8 w-full mt-10">
+            <footer className="bg-gray-100 text-gray-800 p-8 w-full">
                 <div className="max-w-5xl mx-auto text-sm space-y-4">
                     <p className="font-bold">IMPORTANT ADVERTISER DISCLAIMER:</p>
                     <p className="text-justify">
