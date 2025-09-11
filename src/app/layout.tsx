@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Auto-Insurance-2025",
-  description: "",
+export const metadata = {
+  title: "Trusted Auto Savings — Auto Insurance Discounts",
+  description: "Answer a few quick questions to check potential auto insurance savings."
 };
 
 export default function RootLayout({

@@ -13,7 +13,7 @@ interface Message {
     text: string;
 }
 
-export default function Lander() {
+export default function AutoLP1() {
     const [step, setStep] = useState<Step>(1);
     const [countdown, setCountdown] = useState(120);
     const [phone] = useState<string>("+1-800-555-0123");

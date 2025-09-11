@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { FaCheckCircle } from "react-icons/fa";
 import Link from "next/dist/client/link";
 
-export default function Lander() {
+export default function AutoLP2() {
     const [step, setStep] = useState(1); // 1=carrier, 2=homeowner, 3=loading, 4=success
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [phone, setPhone] = useState("1-800-000-0000");
