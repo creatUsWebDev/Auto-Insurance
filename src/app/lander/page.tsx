@@ -32,7 +32,7 @@ export default function Lander() {
         const mm = String(now.getMonth() + 1).padStart(2, "0");
         const dd = String(now.getDate()).padStart(2, "0");
         const yyyy = now.getFullYear();
-        return `${mm}/${dd}/${yyyy}`;
+        return `${dd}/${mm}/${yyyy}`;
     }, []);
 
     const messages: Message[] = [
@@ -117,13 +117,6 @@ export default function Lander() {
         )
         : true;
 
-    // Auto-scroll to the last message whenever visibleMessages or showTyping changes
-    // useEffect(() => {
-    //     if (lastMessageRef.current) {
-    //         lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
-    //     }
-    // }, [visibleMessages, showTyping]);
-
     const hasInteracted = useRef(false); // track if user answered / moved beyond initial messages
 
     // Call this whenever the user sends an answer
@@ -144,19 +137,17 @@ export default function Lander() {
 
     // Smart autoscroll only after user interaction
     useEffect(() => {
-        // if (step < 3) return; // skip autoscroll for step 1 & 2
 
         const container = chatContainerRef.current;
         if (!container) return;
 
         const isNearBottom =
-            container.scrollHeight - container.scrollTop - container.clientHeight < 10;
+            container.scrollHeight - container.scrollTop - container.clientHeight < 100;
 
         if (isNearBottom) {
-            lastMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+            lastMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
         }
     }, [visibleMessages, step]);
-
 
     return (
         <div className="flex flex-col items-center bg-white">
@@ -222,10 +213,10 @@ export default function Lander() {
 
                 {/* Buttons */}
                 {lastEmilyMessageShown && (
-                    <>
+                    <div className="mb-20" ref={lastMessageRef}>
                         {step === 1 && (
                             <button
-                                className="mt-2 bg-blue-600 text-white py-3 rounded-xl"
+                                className="mt-2 bg-blue-600 text-white py-3 rounded-xl w-full"
                                 onClick={() => handleUserAnswer("Yes")}
                             >
                                 Yes
@@ -264,7 +255,7 @@ export default function Lander() {
                             </div>
                         )}
                         {step === 4 && (
-                            <div className="mt-4 space-y-2 mb-20" ref={lastMessageRef}>
+                            <div className="mt-4 space-y-2">
                                 <div className="text-center text-lg font-semibold">
                                     Expires in: {formatted}
                                 </div>
@@ -276,7 +267,7 @@ export default function Lander() {
                                 </Link>
                             </div>
                         )}
-                    </>
+                    </div>
                 )}
             </div>
 
